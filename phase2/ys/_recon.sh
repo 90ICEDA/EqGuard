@@ -1,0 +1,18 @@
+#!/bin/bash
+EQGUARD_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+R="${EQGUARD_ROOT}"
+V="${EQGUARD_VALI_DIR:?Set EQGUARD_VALI_DIR to the functional cell library directory}"
+echo "=== vali ==="
+ls "$V"
+echo "=== base dir ==="
+ls "$R/generate_trans/hosts/rs232t1000/base"
+echo "=== clean head ==="
+head -4 "$R/generate_trans/hosts/rs232t1000/base/rs232t1000_clean.v"
+echo "=== module names ==="
+grep -m3 -n '^module' "$R/generate_trans/hosts/rs232t1000/base/rs232t1000_clean.v"
+echo "=== assign vs inst counts ==="
+grep -c 'assign' "$R/generate_trans/hosts/rs232t1000/base/rs232t1000_clean.v"
+grep -c '^  [A-Za-z_\\]' "$R/generate_trans/hosts/rs232t1000/base/rs232t1000_clean.v"
+echo "=== existing rw sample (decomp3) head ==="
+head -4 "$R/generate_trans/hosts/rs232t1000/rw/rs232t1000__ctldup_d1_s42__rwdecomp3_d1_s42.v" 2>/dev/null || echo "(no rw dir)"
+ls "$R/generate_trans/hosts/rs232t1000" | tail -5

@@ -1,0 +1,19 @@
+model:
+  in_channels: 31      
+  hidden_channels: 128  # 建议增加到 128，提升 GIN 对复杂逻辑的提取能力
+  out_channels: 2     
+  num_layers: 4        # 增加到 4 层，扩大感受野以捕捉更长的逻辑路径
+
+train:
+  lr: 0.001            
+  weight_decay: 0.001  # 稍微增大权重衰减，防止过拟合
+  epochs: 300          # 增加总轮次，配合 Lambda 调度
+  device: "cuda:0"     
+
+siamese:
+  lambda_const: 5.0    # 最终一致性强度可以设得更高（如 5.0），因为我们有了动态调度
+
+# 数据路径
+data:
+  orig_path: "./data/processed/orig_graph.pt"
+  trans_path: "./data/processed/trans_graph.pt"

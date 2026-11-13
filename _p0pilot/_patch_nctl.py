@@ -1,0 +1,10 @@
+from pathlib import Path
+p = Path(r'C:\Users\91344\Desktop\GraphSAINT\GIN_train\_p0pilot\train_nctl.py')
+s = p.read_text(encoding='utf-8')
+s = s.replace("OUT = R / '_p0pilot/lcone_scale_20261110'", "OUT = R / '_p0pilot/lcone_trainctl_20261110'")
+s = s.replace("sup = np.load(FG / 'sup_B.npz')", "sup = np.load(OUT / 'sup_B_ctl.npz', allow_pickle=True)")
+s = s.replace("run_{arm}_s{seed}_lam{lam}", "run_Nctl_s{seed}")
+s = s.replace("        loss = l_t + lam * l_c", "        loss = l_t")
+s = s.replace("dict(arm=arm, seed=seed, lambda_=lam, pos_weight=10.0", "dict(arm='Nctl', seed=seed, lambda_=0.0, pos_weight=10.0")
+p.write_text(s, encoding='utf-8')
+print('patched')

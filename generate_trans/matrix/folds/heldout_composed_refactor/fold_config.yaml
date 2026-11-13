@@ -1,0 +1,10 @@
+# 该 fold 的视图清单（由 matrix_builder.py --materialize-folds 生成）
+fold: heldout_composed_refactor
+level: composed
+held_out_operator: refactor
+views_dir: matrix/folds/heldout_composed_refactor/views
+n_train_views: 180
+n_test_views: 360
+# 下游用法：用该 views_dir 作为只看得到这些视图的 trans 目录做图构建，
+# 再把结果图的 data.trans_path 指给现有训练脚本（config.yaml -> data.trans_path）。
+training_note: train/test 的节点只来自上面列出的视图，禁止把 test 视图放进训练

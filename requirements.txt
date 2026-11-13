@@ -1,0 +1,3 @@
+# Install torch separately for the intended CPU/CUDA platform; see REPRODUCING.md.
+-c requirements/constraints-ginvenv-gpu.txt
+-r requirements/runtime-observed.txt

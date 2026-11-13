@@ -1,0 +1,26 @@
+data:
+  orig_path: ./data/processed/orig_graph.pt
+  trans_path: ./data/processed/trans_graph.pt
+model:
+  hidden_channels: 64
+  in_channels: 33
+  num_layers: 4
+  out_channels: 2
+siamese:
+  const_mode: mse_logit
+  lambda_const: 1.0
+  lambda_det: 1.4
+  lambda_nor: 0.0
+  lambda_pos: 1.0
+  loss_type: ce
+  trojan_w: 6.0
+train:
+  device: cuda:0
+  epochs: 100
+  lr: 0.003
+  seed_id: 42
+  thr_strategy: fpr_first
+  train_mode: 4
+  weight_decay: 0.001
+view:
+  budget: 4
