@@ -113,7 +113,7 @@ def evaluate(label, assets, manifest):
         graphs[r['view']] = graph, meta, torch.as_tensor(x,device='cuda'), torch.as_tensor(graph['edge_index'],device='cuda')
     shared = set.intersection(*known)
     assert all({x for x in s if x[2]=='positive'}=={x for x in shared if x[2]=='positive'} for s in known)
-    if label=='s38584':
+    if label != 's38417':
         full_meta = {v:data[1] for v,data in graphs.items()}
         for v, (graph, meta, x, edge) in graphs.items():
             matched = [dict(e,status='unknown') if e['rankable'] and (e['kind'],e['endpoint'],e['status']) not in shared else e for e in meta]
@@ -166,7 +166,7 @@ def evaluate(label, assets, manifest):
                                             seed=seed,arm=arm,point=point,kind=kind,**r, alarm_threshold=threshold,
                                             graph_alarm=alarm, alarm_nodes=int((physical_scores>=threshold).sum()),
                                             graph_max=float(physical_scores.max())))
-                        if label=='s38584':
+                        if label != 's38417':
                             full = endpoint_eval(margin,graph,full_meta[view],kind)
                             assert all(r[k]==full[k] for k in ('top1','top5','top10','recall512','gates512','equal_gates'))
                             sensitivity.append(dict(view=view,seed=seed,arm=arm,point=point,kind=kind,**full))
@@ -193,12 +193,13 @@ def evaluate(label, assets, manifest):
     print(label, 'evaluated', len(results), 'rows', forwards, 'forwards', flush=True)
 
 
-def bind_s38584():
+def bind_s38584(injection='delta'):
     # Build only the graph and replay frozen vectors, without searching for a witness.
     b = module('task2_graph_builder', CONFIRM / 'build.py')
     a = sys.modules['audit']
     s = b.S
-    source = 's38584t100__injdelta_d1_s42'
+    source = f's38584t100__inj{injection}_d1_s42'
+    label = 's38584' if injection == 'delta' else 's38584_alpha'
     plain_evidence_path = P / 'lcone_endpoint_frozen_20261112/EVIDENCE.json'
     saved = defaultdict(dict)
     for e in read(plain_evidence_path)['endpoints']:
@@ -214,7 +215,7 @@ def bind_s38584():
     lib = b.V.load_library(s.F / 'verilog_lib.v')
     mapping = {r['full_gate_name']:r['simplified_gate_type'] for r in read(s.F / 'gate_full_to_simplified_mapping.json')}
     gate_order = read(s.F / 'gatelookup_recommended.json')['simplified_gate_type_order']
-    assets = OUT / 's38584_graphs'
+    assets = OUT / f'{label}_graphs'
     assets.mkdir(exist_ok=True)
     reports, checks = [], []
     for r in inventory:
@@ -304,7 +305,7 @@ def bind_s38584():
             except (KeyError, ValueError, RecursionError):
                 if key in expected:
                     raise
-        assert proven==expected and Counter(k for k,_ in proven)=={'D':5,'PO':1}
+        assert proven==expected and Counter(k for k,_ in proven)=={'D':5 if injection=='delta' else 1,'PO':1}
         support = Counter(f"{e['kind']}|{e['status']}" for e in meta if e['rankable'])
         assert support['D|negative'] and support['PO|negative']
         folder = assets / target.stem
@@ -319,17 +320,19 @@ def bind_s38584():
                        log_sha256=sha(log),plain_sha256=sha(plain),old_evidence_sha256=sha(plain_evidence_path)))
         print(target.stem, support, flush=True)
         expr.inputs.cache_clear()
-    write_csv(OUT / 's38584_WITNESS_REPLAY.csv',checks)
-    dump(OUT / 's38584_GRAPH_REPORT.json',dict(views=reports,solver_calls=0,labels_modified=False))
+    write_csv(OUT / f'{label}_WITNESS_REPLAY.csv',checks)
+    dump(OUT / f'{label}_GRAPH_REPORT.json',dict(views=reports,solver_calls=0,labels_modified=False))
 
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('action',choices=('s38417','bind_s38584','s38584'))
+    parser.add_argument('action',choices=('s38417','bind_s38584','s38584','bind_s38584_alpha','s38584_alpha'))
     action = parser.parse_args().action
     if action=='s38417':
         evaluate(action,CONFIRM,read(CONFIRM / 'GRAPH_REPORT.json')['views'])
     elif action=='bind_s38584':
         bind_s38584()
+    elif action=='bind_s38584_alpha':
+        bind_s38584('alpha')
     else:
-        evaluate(action,OUT / 's38584_graphs',read(OUT / 's38584_GRAPH_REPORT.json')['views'])
+        evaluate(action,OUT / f'{action}_graphs',read(OUT / f'{action}_GRAPH_REPORT.json')['views'])
