@@ -44,3 +44,5 @@ The [2026-11-15 follow-up release](https://github.com/90ICEDA/EqGuard/releases/t
 - The five-group benign-control results remain in `_p0pilot/control_five_multiseed_20261107/`. Later benign-control and native false-positive analyses are under `_p0pilot/live_control_20261114/`, `_p0pilot/native_hard_fpr_20261113/` and related directories. The A/B/C/C2/D/E variants are exploratory and do not replace the fixed baselines.
 
 Historical proof and run artifacts retain original paths for provenance. When rerunning a historical Yosys or shell recipe on a different machine, work on a copy and rebase those paths to the checkout. Checkpoints are research artifacts; use them only in a trusted environment.
+
+The independent D/PO cone AP supplement uses only certified positive and negative endpoints and the frozen N/NC and H/H+D scores. Unknown endpoints remain in the inspection-budget metrics, but not in this AP calculation. The follow-up Release also includes `endpoint-ap-manifest-20261115.json` and its ZIP with the per-view and aggregate tables. The supplement manifest identifies the code commit that includes `_p0pilot/main_endpoint_ap_20261115/evaluate.py`.
